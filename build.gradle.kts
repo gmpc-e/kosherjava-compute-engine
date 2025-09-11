@@ -1,10 +1,16 @@
+// root build.gradle.kts
+
 plugins {
-    kotlin("jvm") version "2.0.21" apply false
+    // keep empty unless you really need root plugins
 }
+
+// Read properties safely with fallbacks
+val groupProp = (findProperty("GROUP") as String?) ?: "com.elad.halacha"
+val versionProp = (findProperty("VERSION_NAME") as String?) ?: "0.1.0"
 
 allprojects {
-    group = "com.elad.halacha"
-    version = "0.1.0"
+    group = groupProp
+    version = versionProp
 }
 
-// No repositories here — they live in settings.gradle.kts
+// No repositories{} block here; repos live only in settings.gradle.kts

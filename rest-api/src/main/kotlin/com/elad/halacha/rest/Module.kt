@@ -15,6 +15,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.request.*   // <- for call.request.uri
 import org.slf4j.LoggerFactory
+import com.elad.halacha.rest.profiles.*
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 fun Application.module() {
     // ---- JSON config (support java.time.* and ISO-8601 output) ----
@@ -120,7 +123,120 @@ fun Application.module() {
 
             call.respond(HttpStatusCode.OK, response)
         }
+// Validate a profile (no persistence)
+        post("/profiles/validate") {
+            val body = call.receiveText()
+            val mapper = jacksonObjectMapper()
+            val profile: Profile = try {
+                mapper.readValue(body)
+            } catch (e: Exception) {
+                log.warn("Profile parse error: ${e.message}")
+                call.respond(HttpStatusCode.BadRequest, ValidationResponse(false, errors = listOf(
+                    ValidationError("$", "invalid_json", e.message ?: "Invalid JSON")
+                )))
+                return@post
+            }
 
+            val res = ProfileValidator.validate(profile)
+            val status = if (res.valid) HttpStatusCode.OK else HttpStatusCode.BadRequest
+            call.respond(status, res)
+        }
+
+// Compute a profile (no persistence)
+        post("/profiles/compute") {
+            val mapper = jacksonObjectMapper()
+            val body = call.receiveText()
+            val profile: Profile = try {
+                mapper.readValue(body)
+            } catch (e: Exception) {
+                log.warn("Profile parse error: ${e.message}")
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Invalid profile JSON"))
+                return@post
+            }
+
+            // Validate first
+            val validation = ProfileValidator.validate(profile)
+            if (!validation.valid) {
+                call.respond(HttpStatusCode.BadRequest, validation)
+                return@post
+            }
+
+            // inputs (reuse your parser defaults: date=today if missing; tz=OS if missing)
+            val inputs = call.parseInputsOr400(log) ?: return@post
+
+            // compute every time in order
+            val results = profile.times.map { t ->
+                when (t.target.kind) {
+                    "EXTERNAL_NAME" -> {
+                        val name = t.target.externalMethod!!
+                        val req = com.elad.halacha.engine.model.ComputeRequest(
+                            method = com.elad.halacha.engine.model.ComputeMethod.SUNSET, // ignored in by-name compute
+                            dateIso = inputs.date,
+                            lat = inputs.lat,
+                            lon = inputs.lon,
+                            elevationMeters = inputs.elev,
+                            tz = inputs.tz
+                        )
+                        val result = com.elad.halacha.engine.compute.ZmanimComputer.computeByExternalName(name, req)
+                        val owner = com.elad.halacha.engine.compute.MethodRegistry.resolve(name)?.owner
+
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = "EXTERNAL_NAME",
+                                externalMethod = name,
+                                owner = owner
+                            ),
+                            utc = result.utc,
+                            local = result.local,
+                            instant = result.instant?.toString()  // <-- stringify Instant
+                        )
+                    }
+                    "INTERNAL" -> {
+                        // Not implemented yet – return unresolved
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = "INTERNAL",
+                                internalMethodId = t.target.internalMethodId,
+                                owner = "INTERNAL",
+                                status = "unresolved"
+                            ),
+                            utc = null,
+                            local = null,
+                            instant = null
+                        )
+                    }
+                    else -> {
+                        // Should not happen after validation
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = t.target.kind,
+                                status = "unresolved"
+                            ),
+                            utc = null,
+                            local = null,
+                            instant = null
+                        )
+                    }
+                }
+            }
+
+            val resp = ProfileComputeResponse(
+                profile = MinimalProfileInfo(profile.key, profile.displayName),
+                input = ProfileComputeInput(
+                    dateIso = inputs.date,
+                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
+                ),
+                results = results,
+                warnings = validation.warnings
+            )
+            call.respond(HttpStatusCode.OK, resp)
+        }
         // Compute by exact 3rd-party method name
         // GET /compute/by-name?method=getSeaLevelSunset&date=...&lat=...&lon=...&elev=...&tz=...
         get("/compute/by-name") {
@@ -174,6 +290,7 @@ fun Application.module() {
                 "utc" to result.utc,
                 "local" to result.local,
                 "instant" to result.instant
+
             )
 
             log.debug("Compute(by-name) result: utc={}, local={}", result.utc, result.local)

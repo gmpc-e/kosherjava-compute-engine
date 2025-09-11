@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "key": "Shimon",
+  "displayName": "שמעון – לוח",
+  "labels": { "he": "לוח שמעון", "en": "Shimon's Board" },
+  "times": [
+    { "id": "alos", "alias": "ALOS", "label": { "he": "עלות השחר", "en": "Alos Hashachar (72)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72" } },
+
+    { "id": "misheyakir", "label": { "he": "זמן טלית ותפילין", "en": "Misheyakir 11.5°" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMisheyakir11Point5Degrees" } },
+
+    { "id": "sunrise_sea", "label": { "he": "זריחה מישורית", "en": "Sea-Level Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunrise" } },
+
+    { "id": "sunrise_visible", "label": { "he": "זריחה הנראית", "en": "Visible Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunrise" } },
+
+    { "id": "sof_shema_mga", "label": { "he": "סוף זמן קריאת שמע מג״א", "en": "Sof Zman Shema (MGA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA" } },
+
+    { "id": "sof_shema_gra", "label": { "he": "סוף זמן קריאת שמע גרא", "en": "Sof Zman Shema (GRA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaGRA" } },
+
+    { "id": "sof_tfila_mga", "label": { "he": "סוף זמן תפילה מג״א", "en": "Sof Zman Tfila (MGA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA" } },
+
+    { "id": "sof_tfila_gra", "label": { "he": "סוף זמן תפילה גרא", "en": "Sof Zman Tfila (GRA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaGRA" } },
+
+    { "id": "chatzos_day", "label": { "he": "חצות היום", "en": "Chatzos (Midday)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getChatzos" } },
+
+    { "id": "chatzos_night", "label": { "he": "חצות הלילה", "en": "Solar Midnight" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSolarMidnight" } },
+
+    { "id": "mincha_gedola", "label": { "he": "תחילת זמן מנחה גדולה", "en": "Mincha Gedola" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaGedola" } },
+
+    { "id": "mincha_ketana", "label": { "he": "מנחה קטנה", "en": "Mincha Ketana" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaKetana" } },
+
+    { "id": "plag", "label": { "he": "פלג המנחה", "en": "Plag Hamincha" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getPlagHamincha" } },
+
+    { "id": "sunset_sea", "label": { "he": "שקיעה מישורית", "en": "Sea-Level Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunset" } },
+
+    { "id": "sunset_visible", "label": { "he": "שקיעה הנראית", "en": "Visible Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunset" } },
+
+    { "id": "tzais_std", "label": { "he": "צאת הכוכבים", "en": "Tzais (standard)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzais" } },
+
+    { "id": "tzais_rt_72", "label": { "he": "צאת הכוכבים לרבנו תם", "en": "Tzais Rabbenu Tam 72" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzais72" } }
+  ]
+}

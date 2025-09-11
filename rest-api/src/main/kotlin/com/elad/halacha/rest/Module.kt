@@ -114,6 +114,7 @@ fun Application.module() {
                 method, inputs.date, inputs.lat, inputs.lon, inputs.elev, inputs.tz
             )
 
+
             // Map enum -> actual KosherJava method + owner (parent class)
             val (externalMethod, owner) = when (method) {
                 ComputeMethod.SUNRISE -> "getSunrise" to "ZmanimCalendar"
@@ -154,6 +155,104 @@ fun Application.module() {
             )
 
             call.respond(HttpStatusCode.OK, response)
+        }
+
+        // GET /profiles/{key}/compute?date=YYYY-MM-DD&lat=..&lon=..[&elev=0][&tz][&lang=he|en]
+        get("/profiles/{key}/compute") {
+            val key = call.parameters["key"]
+            if (key == null) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing profile key"))
+                return@get
+            }
+            val log = LoggerFactory.getLogger("Api")
+            log.debug("GET /profiles/{}/compute uri={}", key, call.request.uri)
+
+            val profile = ProfileStore.get(key)
+            if (profile == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Profile '$key' not found"))
+                return@get
+            }
+
+            // Parse inputs with defaults (today if date missing; OS tz if tz missing)
+            val inputs = call.parseInputsOr400(log) ?: return@get
+
+            // Validate profile before compute
+            val validation = ProfileValidator.validate(profile)
+            if (!validation.valid) {
+                call.respond(HttpStatusCode.BadRequest, validation)
+                return@get
+            }
+
+            val results = profile.times.map { t ->
+                when (t.target.kind) {
+                    "EXTERNAL_NAME" -> {
+                        val name = t.target.externalMethod!!
+                        val req = ComputeRequest(
+                            method = ComputeMethod.SUNSET, // ignored in by-name path
+                            dateIso = inputs.date,
+                            lat = inputs.lat,
+                            lon = inputs.lon,
+                            elevationMeters = inputs.elev,
+                            tz = inputs.tz
+                        )
+                        val r = ZmanimComputer.computeByExternalName(name, req)
+                        val owner = MethodRegistry.resolve(name)?.owner
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = "EXTERNAL_NAME",
+                                externalMethod = name,
+                                owner = owner
+                            ),
+                            utc = r.utc,
+                            local = r.local,
+                            instant = r.instant?.toString()
+                        )
+                    }
+                    "INTERNAL" -> {
+                        // Not implemented yet – return unresolved stub
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = "INTERNAL",
+                                internalMethodId = t.target.internalMethodId,
+                                owner = "INTERNAL",
+                                status = "unresolved"
+                            ),
+                            utc = null,
+                            local = null,
+                            instant = null
+                        )
+                    }
+                    else -> {
+                        ProfileComputeItem(
+                            id = t.id,
+                            label = t.label,
+                            resolution = Resolution(
+                                kind = t.target.kind,
+                                status = "unresolved"
+                            ),
+                            utc = null,
+                            local = null,
+                            instant = null
+                        )
+                    }
+                }
+            }
+
+            val resp = ProfileComputeResponse(
+                profile = MinimalProfileInfo(profile.key, profile.displayName),
+                input = ProfileComputeInput(
+                    dateIso = inputs.date,
+                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
+                ),
+                results = results,
+                warnings = validation.warnings
+            )
+
+            call.respond(HttpStatusCode.OK, resp)
         }
 // Validate a profile (no persistence)
         post("/profiles/validate") {

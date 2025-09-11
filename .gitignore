@@ -31,3 +31,4 @@ build/
 .DS_Store
 *.log
 >>>>>>> 3fda158 (chore: bootstrap multi-module project + REST API v1 (Story #1 & #2))
+local.properties

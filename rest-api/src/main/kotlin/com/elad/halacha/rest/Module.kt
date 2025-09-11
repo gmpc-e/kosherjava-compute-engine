@@ -19,6 +19,7 @@ import com.elad.halacha.rest.profiles.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 
+
 fun Application.module() {
     // ---- JSON config (support java.time.* and ISO-8601 output) ----
     install(ContentNegotiation) {
@@ -58,6 +59,37 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, methods)
         }
 
+        // --------------------------------------------------------------------
+// PROFILES (read-only): list and fetch stored profile JSONs
+// --------------------------------------------------------------------
+
+// GET /profiles -> list available profiles (key, displayName, labels)
+        get("/profiles") {
+            log.debug("GET /profiles")
+            val items = ProfileStore.list().map {
+                mapOf(
+                    "key" to it.key,
+                    "displayName" to it.displayName,
+                    "labels" to it.labels
+                )
+            }
+            call.respond(HttpStatusCode.OK, items)
+        }
+
+// GET /profiles/{key} -> return full profile object
+        get("/profiles/{key}") {
+            val key = call.parameters["key"]
+            if (key == null) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Missing profile key"))
+                return@get
+            }
+            val profile = ProfileStore.get(key)
+            if (profile == null) {
+                call.respond(HttpStatusCode.NotFound, mapOf("error" to "Profile '$key' not found"))
+                return@get
+            }
+            call.respond(HttpStatusCode.OK, profile)
+        }
         // Compute by enum name
         // GET /compute/{method}?date=...&lat=...&lon=...&elev=...&tz=...
         get("/compute/{method}") {

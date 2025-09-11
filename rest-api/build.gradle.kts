@@ -32,4 +32,25 @@ dependencies {
     // Time
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
 
+    // Make kotlin.test run on JUnit 5
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+
+    // JUnit 5 engine (needed when useJUnitPlatform() is enabled)
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+
+    // If not present already, Ktor test host (usually already there)
+    // testImplementation("io.ktor:ktor-server-tests-jvm:<your-ktor-version>")
+
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed", "failed", "skipped")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
 }

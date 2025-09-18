@@ -15,6 +15,8 @@ kotlin {
 dependencies {
     implementation("com.kosherjava:zmanim:2.5.0")
     testImplementation(kotlin("test"))
+    // ✅ add SLF4J API so LoggerFactory compiles
+    implementation("org.slf4j:slf4j-api:2.0.13")
 }
 
 java {

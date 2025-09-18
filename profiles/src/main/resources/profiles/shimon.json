@@ -4,7 +4,7 @@
   "displayName": "שמעון – לוח",
   "labels": { "he": "לוח שמעון", "en": "Shimon's Board" },
   "times": [
-    { "id": "alos", "alias": "ALOS", "label": { "he": "עלות השחר", "en": "Alos Hashachar (72)" },
+    { "id": "alos", "label": { "he": "עלות השחר", "en": "Alos Hashachar (72)" },
       "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72" } },
 
     { "id": "misheyakir", "label": { "he": "זמן טלית ותפילין", "en": "Misheyakir 11.5°" },

@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "key": "sforh-mixed",
+  "displayName": "Sfaradi/Or HaChaim – mixed",
+  "labels": { "en": "SFORH Mixed", "he": "ספרדי אור החיים – משולב" },
+  "times": [
+    {
+      "id": "alos72ZmaniyotSea",
+      "label": { "en": "Alos (−72 zmaniyot sea-level)", "he": "עלות השחר 72 זמניות (ים)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.ALOS_72_ZMANIYOT_ASTRO"
+      }
+    },
+    {
+      "id": "misheyakir11tenths",
+      "label": { "en": "Misheyakir (−1.1 zmanit hours)", "he": "משיכיר −1.1 שעות זמניות" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.MISHEYAKIR_SHAOT_ZMANIYOT_ASTRO",
+        "params": { "misheyakirOffsetHoursFromSeaLevelSunrise": -1.1 }
+      }
+    },
+    {
+      "id": "szsGraSea",
+      "label": { "en": "Sof Zman Shema (Gra/Tanya, sea-level)", "he": "סו\"ז ק\"ש הגר\"א/בעל התניא" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.SOF_ZMAN_SHMA_GRA_ASTRO"
+      }
+    },
+    {
+      "id": "sztMgaSea",
+      "label": { "en": "Sof Zman Tefillah (MGA, ±72 zmaniyot, sea-level)", "he": "סו\"ז תפילה מ\"א (±72 זמניות)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.SOF_ZMAN_TEFILLA_MGA_72_ZMANIYOT_ASTRO"
+      }
+    },
+    {
+      "id": "sztGraSea",
+      "label": { "en": "Sof Zman Tefillah (Gra/Tanya, sea-level)", "he": "סו\"ז תפילה הגר\"א/בעל התניא" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.SOF_ZMAN_TEFILLA_GRA_ASTRO"
+      }
+    },
+    {
+      "id": "extSeaSunrise",
+      "label": { "en": "Sea-level Sunrise (external)", "he": "זריחה (ים)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunrise" }
+    },
+    {
+      "id": "extSeaSunset",
+      "label": { "en": "Sea-level Sunset (external)", "he": "שקיעה (ים)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunset" }
+    },
+    {
+      "id": "extTzais4_8",
+      "label": { "en": "Tzais 4.8° (external)", "he": "צאת 4.8° (חיצוני)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzaisGeonim4Point8Degrees" }
+    }
+  ]
+}

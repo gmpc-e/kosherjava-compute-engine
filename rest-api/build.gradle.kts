@@ -42,6 +42,8 @@ dependencies {
     // kotlin.test on JUnit 5
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+
+    implementation("com.kosherjava:zmanim:2.5.0")
 }
 
 tasks.test {

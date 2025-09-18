@@ -1,6 +1,7 @@
 package com.elad.halacha.rest.profiles
 
 import com.elad.halacha.engine.compute.MethodRegistry
+import com.elad.halacha.engine.internal.InternalMethodId
 
 object ProfileValidator {
 
@@ -52,23 +53,43 @@ object ProfileValidator {
                     } else {
                         val found = MethodRegistry.resolve(name)
                         if (found == null) {
-                            errors += ValidationError("$path.target.externalMethod", "unknown_external_method", "Method '$name' not found in registry")
+                            errors += ValidationError(
+                                "$path.target.externalMethod",
+                                "unknown_external_method",
+                                "Method '$name' not found in registry"
+                            )
                         }
                     }
                 }
+
                 "INTERNAL" -> {
-                    // Non-blocking: allow unknown internal ids (future support)
-                    val id = t.target.internalMethodId
-                    if (id.isNullOrBlank()) {
-                        // Internal target specified but missing id – warn, not error
-                        warnings += ValidationWarning("$path.target.internalMethodId", "missing_internal_id", "No internalMethodId provided; will be unresolved at compute")
+                    val internalId = t.target.internalMethodId
+                    if (internalId.isNullOrBlank()) {
+                        warnings += ValidationWarning(
+                            "$path.target.internalMethodId",
+                            "missing_internal_id",
+                            "No internalMethodId provided; will be unresolved at compute"
+                        )
                     } else {
-                        // Unknown internal method id – warn (not error) by default
-                        warnings += ValidationWarning("$path.target.internalMethodId", "unknown_internal_method", "Internal method '$id' is not registered (yet); will be unresolved at compute")
+                        // Treat as KNOWN if it matches our InternalMethodId enum
+                        val known = InternalMethodId.from(internalId) != null
+                        if (!known) {
+                            warnings += ValidationWarning(
+                                "$path.target.internalMethodId",
+                                "unknown_internal_method",
+                                "Internal method '$internalId' is not registered; will be unresolved at compute"
+                            )
+                        }
+                        // params: optional, accept any map — nothing to validate structurally right now
                     }
                 }
+
                 else -> {
-                    errors += ValidationError("$path.target.kind", "unsupported_kind", "Supported kinds: EXTERNAL_NAME, INTERNAL")
+                    errors += ValidationError(
+                        "$path.target.kind",
+                        "unsupported_kind",
+                        "Supported kinds: EXTERNAL_NAME, INTERNAL"
+                    )
                 }
             }
         }

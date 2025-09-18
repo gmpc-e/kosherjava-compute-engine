@@ -1,4 +1,5 @@
 package com.elad.halacha.rest
+
 import java.time.LocalDate
 import java.time.ZoneId
 import com.elad.halacha.engine.EngineInfo
@@ -13,12 +14,15 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.request.*   // <- for call.request.uri
+import io.ktor.server.request.*   // for call.request.uri / receiveText()
 import org.slf4j.LoggerFactory
 import com.elad.halacha.rest.profiles.*
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-
+import com.elad.halacha.engine.internal.InternalMethodRegistry
+import com.kosherjava.zmanim.util.GeoLocation
+import java.util.Date
+import java.util.TimeZone
 
 fun Application.module() {
     // ---- JSON config (support java.time.* and ISO-8601 output) ----
@@ -52,18 +56,21 @@ fun Application.module() {
                 mapOf(
                     "name" to m.name,
                     "owner" to m.owner,
-                    "description" to MethodDocs.describe(m.name) // <- optional, may be null
+                    "description" to MethodDocs.describe(m.name) // optional, may be null
                 )
             }
             log.info("Methods listed: {}", methods.size)
             call.respond(HttpStatusCode.OK, methods)
         }
 
-        // --------------------------------------------------------------------
-// PROFILES (read-only): list and fetch stored profile JSONs
-// --------------------------------------------------------------------
+        // Internal methods (list + compute one)
+        internalMethodsRoutes()
 
-// GET /profiles -> list available profiles (key, displayName, labels)
+        // --------------------------------------------------------------------
+        // PROFILES (read-only): list and fetch stored profile JSONs
+        // --------------------------------------------------------------------
+
+        // GET /profiles -> list available profiles (key, displayName, labels)
         get("/profiles") {
             log.debug("GET /profiles")
             val items = ProfileStore.list().map {
@@ -76,7 +83,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, items)
         }
 
-// GET /profiles/{key} -> return full profile object
+        // GET /profiles/{key} -> return full profile object
         get("/profiles/{key}") {
             val key = call.parameters["key"]
             if (key == null) {
@@ -90,13 +97,13 @@ fun Application.module() {
             }
             call.respond(HttpStatusCode.OK, profile)
         }
+
         // Compute by enum name
         // GET /compute/{method}?date=...&lat=...&lon=...&elev=...&tz=...
         get("/compute/{method}") {
             log.debug("GET {} uri={}", "/compute/${call.parameters["method"]}", call.request.uri)
 
-            val methodParam = call.parameters["method"]
-            if (methodParam == null) {
+            val methodParam = call.parameters["method"] ?: run {
                 call.badRequest(log, "Missing path param 'method'")
                 return@get
             }
@@ -114,8 +121,7 @@ fun Application.module() {
                 method, inputs.date, inputs.lat, inputs.lon, inputs.elev, inputs.tz
             )
 
-
-            // Map enum -> actual KosherJava method + owner (parent class)
+            // Enum mapping is informational only (we compute through engine)
             val (externalMethod, owner) = when (method) {
                 ComputeMethod.SUNRISE -> "getSunrise" to "ZmanimCalendar"
                 ComputeMethod.SUNSET -> "getSunset" to "ZmanimCalendar"
@@ -134,7 +140,6 @@ fun Application.module() {
             val result = ZmanimComputer.compute(req)
             log.debug("Compute(enum) result: utc={}, local={}", result.utc, result.local)
 
-            // Respond with resolution info (actual external method + owner), plus the computed times
             val response = mapOf(
                 "resolution" to mapOf(
                     "kind" to "ENUM",
@@ -157,7 +162,7 @@ fun Application.module() {
             call.respond(HttpStatusCode.OK, response)
         }
 
-        // GET /profiles/{key}/compute?date=YYYY-MM-DD&lat=..&lon=..[&elev=0][&tz][&lang=he|en]
+        // GET /profiles/{key}/compute?date=YYYY-MM-DD&lat=..&lon=..[&elev=0][&tz]
         get("/profiles/{key}/compute") {
             val key = call.parameters["key"]
             if (key == null) {
@@ -173,77 +178,151 @@ fun Application.module() {
                 return@get
             }
 
-            // Parse inputs with defaults (today if date missing; OS tz if tz missing)
             val inputs = call.parseInputsOr400(log) ?: return@get
 
-            // Validate profile before compute
             val validation = ProfileValidator.validate(profile)
             if (!validation.valid) {
                 call.respond(HttpStatusCode.BadRequest, validation)
                 return@get
             }
 
-            val results = profile.times.map { t ->
+            val zoneId = ZoneId.of(inputs.tz)
+            val geoloc = GeoLocation(
+                "request",
+                inputs.lat,
+                inputs.lon,
+                inputs.elev,
+                TimeZone.getTimeZone(zoneId)
+            )
+            val dateInstant = LocalDate.parse(inputs.date).atStartOfDay(zoneId).toInstant()
+            val dateInstantDate = Date.from(dateInstant)
+
+            val results: List<ProfileComputeItem> = profile.times.map { t ->
                 when (t.target.kind) {
                     "EXTERNAL_NAME" -> {
-                        val name = t.target.externalMethod!!
-                        val req = ComputeRequest(
-                            method = ComputeMethod.SUNSET, // ignored in by-name path
-                            dateIso = inputs.date,
-                            lat = inputs.lat,
-                            lon = inputs.lon,
-                            elevationMeters = inputs.elev,
-                            tz = inputs.tz
-                        )
-                        val r = ZmanimComputer.computeByExternalName(name, req)
-                        val owner = MethodRegistry.resolve(name)?.owner
-                        ProfileComputeItem(
-                            id = t.id,
-                            label = t.label,
-                            resolution = Resolution(
-                                kind = "EXTERNAL_NAME",
-                                externalMethod = name,
-                                owner = owner
-                            ),
-                            utc = r.utc,
-                            local = r.local,
-                            instant = r.instant?.toString()
-                        )
+                        val name = t.target.externalMethod ?: ""
+                        if (name.isBlank()) {
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "EXTERNAL_NAME",
+                                    externalMethod = null,
+                                    owner = "MethodRegistry"
+                                ),
+                                utc = null, local = null, instant = null
+                            )
+                        } else {
+                            val req = ComputeRequest(
+                                method = ComputeMethod.SUNSET, // ignored in by-name path
+                                dateIso = inputs.date,
+                                lat = inputs.lat,
+                                lon = inputs.lon,
+                                elevationMeters = inputs.elev,
+                                tz = inputs.tz
+                            )
+                            val r = ZmanimComputer.computeByExternalName(name, req)
+                            val owner = MethodRegistry.resolve(name)?.owner
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "EXTERNAL_NAME",
+                                    externalMethod = name,
+                                    owner = owner
+                                ),
+                                utc = r.utc,
+                                local = r.local,
+                                instant = r.instant?.toString()
+                            )
+                        }
                     }
-                    "INTERNAL" -> {
-                        // Not implemented yet – return unresolved stub
-                        ProfileComputeItem(
-                            id = t.id,
-                            label = t.label,
-                            resolution = Resolution(
-                                kind = "INTERNAL",
-                                internalMethodId = t.target.internalMethodId,
-                                owner = "INTERNAL",
-                                status = "unresolved"
-                            ),
-                            utc = null,
-                            local = null,
-                            instant = null
-                        )
+
+                    "INTERNAL" -> run {
+                        val internalId = t.target.internalMethodId
+                        if (internalId.isNullOrBlank()) {
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "INTERNAL",
+                                    internalMethodId = null,
+                                    owner = "INTERNAL",
+                                    status = "missing_id"
+                                ),
+                                utc = null, local = null, instant = null
+                            )
+                        } else {
+                            val out = runCatching {
+                                InternalMethodRegistry.compute(
+                                    idString = internalId,
+                                    date = dateInstantDate,
+                                    loc = geoloc,
+                                    params = t.target.params ?: emptyMap()
+                                )
+                            }.getOrElse { _ ->
+                                return@run ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "error"
+                                    ),
+                                    utc = null, local = null, instant = null
+                                )
+                            }
+
+                            val d = out.time
+                            if (d == null) {
+                                ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "unresolved"
+                                    ),
+                                    utc = null, local = null, instant = null
+                                )
+                            } else {
+                                val inst = d.toInstant()
+                                ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "ok"
+                                    ),
+                                    utc = inst.atZone(ZoneId.of("UTC")).toString(),
+                                    local = inst.atZone(zoneId).toString(),
+                                    instant = inst.toString()
+                                )
+                            }
+                        }
                     }
+
                     else -> {
                         ProfileComputeItem(
                             id = t.id,
                             label = t.label,
                             resolution = Resolution(
                                 kind = t.target.kind,
-                                status = "unresolved"
+                                owner = "UNKNOWN",
+                                status = "unsupported"
                             ),
-                            utc = null,
-                            local = null,
-                            instant = null
+                            utc = null, local = null, instant = null
                         )
                     }
                 }
             }
 
             val resp = ProfileComputeResponse(
-                profile = MinimalProfileInfo(profile.key, profile.displayName),
+                profile = MinimalProfileInfo(profile.key, profile.displayName, profile.labels),
                 input = ProfileComputeInput(
                     dateIso = inputs.date,
                     geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
@@ -254,7 +333,8 @@ fun Application.module() {
 
             call.respond(HttpStatusCode.OK, resp)
         }
-// Validate a profile (no persistence)
+
+        // Validate a profile (no persistence)
         post("/profiles/validate") {
             val body = call.receiveText()
             val mapper = jacksonObjectMapper()
@@ -262,9 +342,15 @@ fun Application.module() {
                 mapper.readValue(body)
             } catch (e: Exception) {
                 log.warn("Profile parse error: ${e.message}")
-                call.respond(HttpStatusCode.BadRequest, ValidationResponse(false, errors = listOf(
-                    ValidationError("$", "invalid_json", e.message ?: "Invalid JSON")
-                )))
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ValidationResponse(
+                        valid = false,
+                        errors = listOf(
+                            ValidationError("$", "invalid_json", e.message ?: "Invalid JSON")
+                        )
+                    )
+                )
                 return@post
             }
 
@@ -273,7 +359,7 @@ fun Application.module() {
             call.respond(status, res)
         }
 
-// Compute a profile (no persistence)
+        // Compute a profile (no persistence)
         post("/profiles/compute") {
             val mapper = jacksonObjectMapper()
             val body = call.receiveText()
@@ -292,73 +378,148 @@ fun Application.module() {
                 return@post
             }
 
-            // inputs (reuse your parser defaults: date=today if missing; tz=OS if missing)
+            // inputs (defaults: date=today; tz=system)
             val inputs = call.parseInputsOr400(log) ?: return@post
 
+            val zoneId = ZoneId.of(inputs.tz)
+            val geoloc = GeoLocation(
+                "request",
+                inputs.lat,
+                inputs.lon,
+                inputs.elev,
+                TimeZone.getTimeZone(zoneId)
+            )
+            val dateInstant = LocalDate.parse(inputs.date).atStartOfDay(zoneId).toInstant()
+            val dateInstantDate = Date.from(dateInstant)
+
             // compute every time in order
-            val results = profile.times.map { t ->
+            val results: List<ProfileComputeItem> = profile.times.map { t ->
                 when (t.target.kind) {
                     "EXTERNAL_NAME" -> {
-                        val name = t.target.externalMethod!!
-                        val req = com.elad.halacha.engine.model.ComputeRequest(
-                            method = com.elad.halacha.engine.model.ComputeMethod.SUNSET, // ignored in by-name compute
-                            dateIso = inputs.date,
-                            lat = inputs.lat,
-                            lon = inputs.lon,
-                            elevationMeters = inputs.elev,
-                            tz = inputs.tz
-                        )
-                        val result = com.elad.halacha.engine.compute.ZmanimComputer.computeByExternalName(name, req)
-                        val owner = com.elad.halacha.engine.compute.MethodRegistry.resolve(name)?.owner
+                        val name = t.target.externalMethod ?: ""
+                        if (name.isBlank()) {
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "EXTERNAL_NAME",
+                                    externalMethod = null,
+                                    owner = "MethodRegistry"
+                                ),
+                                utc = null, local = null, instant = null
+                            )
+                        } else {
+                            val req = ComputeRequest(
+                                method = ComputeMethod.SUNSET, // ignored in by-name compute
+                                dateIso = inputs.date,
+                                lat = inputs.lat,
+                                lon = inputs.lon,
+                                elevationMeters = inputs.elev,
+                                tz = inputs.tz
+                            )
+                            val result = ZmanimComputer.computeByExternalName(name, req)
+                            val owner = MethodRegistry.resolve(name)?.owner
 
-                        ProfileComputeItem(
-                            id = t.id,
-                            label = t.label,
-                            resolution = Resolution(
-                                kind = "EXTERNAL_NAME",
-                                externalMethod = name,
-                                owner = owner
-                            ),
-                            utc = result.utc,
-                            local = result.local,
-                            instant = result.instant?.toString()  // <-- stringify Instant
-                        )
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "EXTERNAL_NAME",
+                                    externalMethod = name,
+                                    owner = owner
+                                ),
+                                utc = result.utc,
+                                local = result.local,
+                                instant = result.instant?.toString()
+                            )
+                        }
                     }
-                    "INTERNAL" -> {
-                        // Not implemented yet – return unresolved
-                        ProfileComputeItem(
-                            id = t.id,
-                            label = t.label,
-                            resolution = Resolution(
-                                kind = "INTERNAL",
-                                internalMethodId = t.target.internalMethodId,
-                                owner = "INTERNAL",
-                                status = "unresolved"
-                            ),
-                            utc = null,
-                            local = null,
-                            instant = null
-                        )
+
+                    "INTERNAL" -> run {
+                        val internalId = t.target.internalMethodId
+                        if (internalId.isNullOrBlank()) {
+                            ProfileComputeItem(
+                                id = t.id,
+                                label = t.label,
+                                resolution = Resolution(
+                                    kind = "INTERNAL",
+                                    internalMethodId = null,
+                                    owner = "INTERNAL",
+                                    status = "missing_id"
+                                ),
+                                utc = null, local = null, instant = null
+                            )
+                        } else {
+                            val out = runCatching {
+                                InternalMethodRegistry.compute(
+                                    idString = internalId,
+                                    date = dateInstantDate,
+                                    loc = geoloc,
+                                    params = t.target.params ?: emptyMap()
+                                )
+                            }.getOrElse { _ ->
+                                return@run ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "error"
+                                    ),
+                                    utc = null, local = null, instant = null
+                                )
+                            }
+
+                            val computed = out.time
+                            if (computed == null) {
+                                ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "unresolved"
+                                    ),
+                                    utc = null, local = null, instant = null
+                                )
+                            } else {
+                                val instant = computed.toInstant()
+                                ProfileComputeItem(
+                                    id = t.id,
+                                    label = t.label,
+                                    resolution = Resolution(
+                                        kind = "INTERNAL",
+                                        internalMethodId = internalId,
+                                        owner = "INTERNAL",
+                                        status = "ok"
+                                    ),
+                                    utc = instant.atZone(ZoneId.of("UTC")).toString(),
+                                    local = instant.atZone(zoneId).toString(),
+                                    instant = instant.toString()
+                                )
+                            }
+                        }
                     }
+
                     else -> {
-                        // Should not happen after validation
                         ProfileComputeItem(
                             id = t.id,
                             label = t.label,
                             resolution = Resolution(
                                 kind = t.target.kind,
-                                status = "unresolved"
+                                owner = "UNKNOWN",
+                                status = "unsupported"
                             ),
-                            utc = null,
-                            local = null,
-                            instant = null
+                            utc = null, local = null, instant = null
                         )
                     }
                 }
             }
 
             val resp = ProfileComputeResponse(
-                profile = MinimalProfileInfo(profile.key, profile.displayName),
+                profile = MinimalProfileInfo(profile.key, profile.displayName, profile.labels),
                 input = ProfileComputeInput(
                     dateIso = inputs.date,
                     geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
@@ -368,6 +529,7 @@ fun Application.module() {
             )
             call.respond(HttpStatusCode.OK, resp)
         }
+
         // Compute by exact 3rd-party method name
         // GET /compute/by-name?method=getSeaLevelSunset&date=...&lat=...&lon=...&elev=...&tz=...
         get("/compute/by-name") {
@@ -387,7 +549,7 @@ fun Application.module() {
             )
 
             val req = ComputeRequest(
-                method = ComputeMethod.SUNSET, // internal field, ignored in by-name response
+                method = ComputeMethod.SUNSET, // internal, ignored in by-name response
                 dateIso = inputs.date,
                 lat = inputs.lat,
                 lon = inputs.lon,
@@ -404,7 +566,6 @@ fun Application.module() {
 
             val owner = MethodRegistry.resolve(name)?.owner
 
-            // Minimal response: external method + owner + computed times (no internal enum)
             val response = mapOf(
                 "resolution" to mapOf(
                     "kind" to "EXTERNAL_NAME",
@@ -421,7 +582,6 @@ fun Application.module() {
                 "utc" to result.utc,
                 "local" to result.local,
                 "instant" to result.instant
-
             )
 
             log.debug("Compute(by-name) result: utc={}, local={}", result.utc, result.local)
@@ -466,7 +626,7 @@ private suspend fun ApplicationCall.parseInputsOr400(log: org.slf4j.Logger): Inp
     return Inputs(date, lat, lon, elev, tz)
 }
 
-/** Respond 400 and log a clear message. Returns Unit so callers can `return@get` explicitly. */
+/** Respond 400 and log a clear message. */
 private suspend fun ApplicationCall.badRequest(
     log: org.slf4j.Logger,
     msg: String

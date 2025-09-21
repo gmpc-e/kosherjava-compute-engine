@@ -47,6 +47,9 @@ object SfaradiOrHachaim {
 
             InternalMethodId.SFORH_SOF_ZMAN_TEFILLA_GRA_ASTRO ->
                 InternalMethodComputer.sofZmanTefillaGraSea(inputs)
+
+            InternalMethodId.SFORH_TZAIS_13P5_ZMANIYOT_ASTRO ->
+                InternalMethodComputer.tzais13p5ZmaniyotAstro(inputs)
         }
 
         return InternalMethodComputer.Output(id, time)

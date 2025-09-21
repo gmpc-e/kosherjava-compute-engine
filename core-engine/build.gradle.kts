@@ -13,6 +13,7 @@ kotlin {
 // IMPORTANT: no repositories{} here – use settings.gradle.kts
 
 dependencies {
+    implementation(project(":profiles"))
     implementation("com.kosherjava:zmanim:2.5.0")
     testImplementation(kotlin("test"))
     // ✅ add SLF4J API so LoggerFactory compiles

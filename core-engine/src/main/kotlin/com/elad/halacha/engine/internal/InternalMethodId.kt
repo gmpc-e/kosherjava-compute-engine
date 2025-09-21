@@ -28,7 +28,10 @@ enum class InternalMethodId(val id: String, val display: String) {
     SFORH_SOF_ZMAN_TEFILLA_GRA_ASTRO(
         "SFARADI_OR_HACHAIM.SOF_ZMAN_TEFILLA_GRA_ASTRO",
         "Sof Zman Tefillah (Gra/Tanya): 4 zmaniyot hours; day = Sea-level sunrise → Sea-level sunset"
-    );
+    ),
+    SFORH_TZAIS_13P5_ZMANIYOT_ASTRO("SFARADI_OR_HACHAIM.TZAIS_13P5_ZMANIYOT_ASTRO",
+        "Tzais +13.5 zmanit minutes (astro day)")
+    ;
 
     companion object {
         fun from(id: String): InternalMethodId? = entries.firstOrNull { it.id == id }

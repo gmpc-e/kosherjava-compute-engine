@@ -296,6 +296,19 @@ object InternalMethodComputer {
         return result
     }
 
+    /** Tzais = sea-level sunset + N fixed minutes (default 18). */
+    fun tzaisFixedMinutesAfterSunset(inputs: Inputs, minutes: Double = 18.0): Date? {
+        val ac = AstronomicalCalendar(inputs.location).apply { calendar.time = inputs.date }
+        val sunset = ac.seaLevelSunset ?: return null
+        val tz = inputs.location.timeZone
+        val result = Date(sunset.time + (minutes * 60_000L).toLong())
+        log.debug("# TZAIS({} fixed min): seaLevelSunset={} + {}min = {} (UTC {})",
+            minutes, sunset.fmt(tz),
+            minutes, result.fmt(tz), toInstantSafe(result).atZone(ZoneId.of("UTC"))
+        )
+        return result
+    }
+
     /** Tzais = sea-level sunset + 13.5 zmanit minutes (shaah from sea-level day). */
     fun tzais13p5ZmaniyotAstro(inputs: Inputs): Date? {
                 val tz = inputs.location.timeZone

@@ -1,10 +1,11 @@
 package com.elad.halacha.engine.profiles
 
+import com.elad.halacha.engine.compute.MethodRegistry
+import com.elad.halacha.engine.compute.ZmanimComputer
 import com.elad.halacha.engine.internal.InternalMethodRegistry
 import com.elad.halacha.engine.model.ComputeMethod
 import com.elad.halacha.engine.model.ComputeRequest
-import com.elad.halacha.engine.compute.MethodRegistry
-import com.elad.halacha.engine.compute.ZmanimComputer
+import com.elad.halacha.engine.calendar.ShabbatTimesComputer
 import com.elad.halacha.profiles.api.*
 import com.elad.halacha.profiles.store.ProfileStore
 import com.elad.halacha.profiles.validate.ProfileValidator
@@ -27,19 +28,27 @@ class ProfilesServiceImpl : ProfilesService {
                 profile = MinimalProfileInfo(key, displayName = "unknown"),
                 input = input,
                 results = emptyList(),
-                warnings = listOf(ValidationWarning("$", "profile_not_found", "Profile '$key' not found"))
+                warnings = listOf(
+                    ValidationWarning(
+                        path = "$",
+                        code = "profile_not_found",
+                        message = "Profile '$key' not found"
+                    )
+                )
             )
 
         val validation = ProfileValidator.validate(stored)
         if (!validation.valid) {
-            // Contract: on invalid profile, return empty results with errors as warnings for UI display
+            // Contract: on invalid profile, return empty results; surface errors as warnings.
+            val warns = buildList {
+                addAll(validation.warnings) // already List<ValidationWarning>
+                addAll(validation.errors.map { e -> ValidationWarning(e.path, e.code, e.message) })
+            }
             return ProfileComputeResponse(
                 profile = MinimalProfileInfo(stored.key, stored.displayName, stored.labels),
                 input = input,
                 results = emptyList(),
-                warnings = validation.warnings + validation.errors.map {
-                    ValidationWarning(it.path, it.code, it.message)
-                }
+                warnings = warns
             )
         }
 
@@ -158,10 +167,19 @@ class ProfilesServiceImpl : ProfilesService {
             }
         }
 
+        val shabbatItems = ShabbatTimesComputer.compute(input.dateIso, gl, input.candleOffsetMinutes).map { s ->
+            ProfileComputeItem(
+                id = s.id,
+                label = Labels(he = s.labelHe, en = s.labelEn),
+                resolution = Resolution(kind = "SHABBAT", owner = "ShabbatTimesComputer", status = "ok"),
+                utc = s.utc, local = s.local, instant = s.instant
+            )
+        }
+
         return ProfileComputeResponse(
             profile = MinimalProfileInfo(stored.key, stored.displayName, stored.labels),
             input = input,
-            results = results,
+            results = results + shabbatItems,
             warnings = validation.warnings
         )
     }

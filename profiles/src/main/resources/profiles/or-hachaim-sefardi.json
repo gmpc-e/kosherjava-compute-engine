@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "key": "or-hachaim-sefardi",
+  "displayName": "אור החיים – ספרדי",
+  "labels": { "en": "Or HaChaim (Sefardi)", "he": "אור החיים – ספרדי" },
+
+  "times": [
+    {
+      "id": "alos72Zmaniyot",
+      "label": { "he": "עלות השחר (72 דק׳ זמניות)", "en": "Alos (72 zmaniyot)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72Zmanis" }
+    },
+    {
+      "id": "misheyakirZmaniyot",
+      "label": { "he": "טלית ותפילין (משיכיר)", "en": "Misheyakir (zmaniyot hours)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.MISHEYAKIR_SHAOT_ZMANIYOT_ASTRO"
+      }
+    },
+
+    {
+      "id": "sunriseSeaLevel",
+      "label": { "he": "זריחה מישורית", "en": "Sea-level Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunrise" }
+    },
+    {
+      "id": "sunriseVisible",
+      "label": { "he": "זריחה הנראית", "en": "Visible Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunrise" }
+    },
+
+    {
+      "id": "szsMga72Zmaniyot",
+      "label": { "he": "סו\"ז קריאת שמע מ\"א", "en": "Sof Zman Shema (MGA, 72 zmaniyot)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA72MinutesZmanis" }
+    },
+    {
+      "id": "szsGra",
+      "label": { "he": "סו\"ז קריאת שמע גר\"א/בעל התניא", "en": "Sof Zman Shema (GRA/Tanya)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.SOF_ZMAN_SHMA_GRA_ASTRO"
+      }
+    },
+
+    {
+      "id": "sztMga72Zmaniyot",
+      "label": { "he": "סו\"ז תפילה מ\"א", "en": "Sof Zman Tefillah (MGA, 72 zmaniyot)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA72MinutesZmanis" }
+      },
+    {
+      "id": "sztGra",
+      "label": { "he": "סו\"ז תפילה גר\"א/בעל התניא", "en": "Sof Zman Tefillah (GRA/Tanya)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.SOF_ZMAN_TEFILLA_GRA_ASTRO"
+      }
+    },
+        {
+      "id": "minchaGedola",
+      "label": { "he": "תחילת זמן מנחה גדולה", "en": "Mincha Gedola" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaGedola" }
+    },
+
+    {
+      "id": "minchaKetanaSea",
+      "label": { "he": "מנחה קטנה", "en": "Mincha Ketana (sea-level)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaKetana" }
+    },
+    {
+      "id": "plag",
+      "label": { "he": "פלג המנחה", "en": "Plag Hamincha" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getPlagHaminchaBaalHatanya" }
+    },
+
+    {
+      "id": "sunsetSeaLevel",
+      "label": { "he": "שקיעה מישורית", "en": "Sea-level Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunset" }
+    },
+    {
+      "id": "sunsetVisible",
+      "label": { "he": "שקיעה הנראית", "en": "Visible Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunset" }
+    },
+{
+  "id": "tzais13p5ZmaniyotAstro",
+  "label": { "en": "Tzais (13.5 zmanit minutes)", "he": "צאת הכוכבים 13.5 דק׳ לאחר שקיעה מישורית" },
+  "target": {
+    "kind": "INTERNAL",
+    "internalMethodId": "SFARADI_OR_HACHAIM.TZAIS_13P5_ZMANIYOT_ASTRO"
+  }
+},  
+    {
+      "id": "chatzosDay",
+      "label": { "he": "חצות היום", "en": "Chatzos (midday)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getChatzos" }
+    },
+    {
+      "id": "chatzosNight",
+      "label": { "he": "חצות הלילה (Solar Midnight)", "en": "Solar Midnight" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSolarMidnight" }
+    }
+  ]
+}

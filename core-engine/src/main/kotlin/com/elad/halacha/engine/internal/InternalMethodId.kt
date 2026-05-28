@@ -30,7 +30,12 @@ enum class InternalMethodId(val id: String, val display: String) {
         "Sof Zman Tefillah (Gra/Tanya): 4 zmaniyot hours; day = Sea-level sunrise → Sea-level sunset"
     ),
     SFORH_TZAIS_13P5_ZMANIYOT_ASTRO("SFARADI_OR_HACHAIM.TZAIS_13P5_ZMANIYOT_ASTRO",
-        "Tzais +13.5 zmanit minutes (astro day)")
+        "Tzais +13.5 zmanit minutes (astro day)"),
+
+    SFORH_TZAIS_FIXED_MINUTES_AFTER_SUNSET(
+        "SFARADI_OR_HACHAIM.TZAIS_FIXED_MINUTES_AFTER_SUNSET",
+        "Tzais: fixed minutes after sea-level sunset (default 18, configurable via minutesAfterSunset param)"
+    )
     ;
 
     companion object {

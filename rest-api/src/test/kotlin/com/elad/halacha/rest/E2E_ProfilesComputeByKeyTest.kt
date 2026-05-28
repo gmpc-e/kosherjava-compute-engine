@@ -18,11 +18,11 @@ class E2E_ProfilesComputeByKeyTest {
         .registerModule(JavaTimeModule())
 
     @Test
-    fun `profiles Shimon compute - basic contract holds`() = testApplication {
+    fun `profiles chazon-shamaim compute - basic contract holds`() = testApplication {
         application { module() }
 
         val resp: HttpResponse = client.get(
-            "/profiles/Shimon/compute?date=2025-09-09&lat=32.0853&lon=34.7818&elev=34&tz=Asia/Jerusalem&lang=he"
+            "/profiles/chazon-shamaim/compute?date=2025-09-09&lat=32.0853&lon=34.7818&elev=34&tz=Asia/Jerusalem&lang=he"
         )
 
         assertEquals(HttpStatusCode.OK, resp.status, "Unexpected HTTP status")
@@ -38,7 +38,7 @@ class E2E_ProfilesComputeByKeyTest {
 
         // Profile
         val profile = root.get("profile")
-        assertEquals("Shimon", profile.get("key").asText(), "profile.key mismatch")
+        assertEquals("chazon-shamaim", profile.get("key").asText(), "profile.key mismatch")
 
         // Input
         val input = root.get("input")

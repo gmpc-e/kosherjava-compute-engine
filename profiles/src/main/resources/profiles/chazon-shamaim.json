@@ -6,13 +6,13 @@
   "times": [
     {
       "id": "alos90",
-      "label": { "he": "עלות השחר (90 דקות לפני הנץ)", "en": "Alos (90 minutes before sunrise)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos90" }
+      "label": { "he": "עלות השחר (19.8° – לחומרא)", "en": "Alos (19.8° – stringent)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos19Point8Degrees" }
     },
     {
       "id": "alos72",
-      "label": { "he": "עלות השחר (72 דקות לפני הנץ)", "en": "Alos (72 minutes before sunrise)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72" }
+      "label": { "he": "עלות השחר (16.1° – לקולא ולחומרא)", "en": "Alos (16.1° – primary)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos16Point1Degrees" }
     },
 
     {
@@ -35,7 +35,7 @@
     {
       "id": "szsMga",
       "label": { "he": "סוף זמן קריאת שמע (מג״א)", "en": "Sof Zman Shema (MGA)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA" }
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA19Point8Degrees" }
     },
     {
       "id": "szsGra",
@@ -45,7 +45,7 @@
     {
       "id": "sztMga",
       "label": { "he": "סוף זמן תפילה (מג״א)", "en": "Sof Zman Tefillah (MGA 90min)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA90Minutes" }
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA19Point8Degrees" }
     },
     {
       "id": "sztGra",
@@ -86,9 +86,9 @@
     },
 
     {
-      "id": "tzaisDeg4_8",
-      "label": { "he": "צאת הכוכבים 4.8°", "en": "Tzais (4.8°)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzaisGeonim4Point8Degrees" }
+      "id": "tzais18min",
+      "label": { "he": "צאת הכוכבים (4.61°)", "en": "Tzais (Geonim 4.61°)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzaisGeonim4Point61Degrees" }
     },
     {
       "id": "tzaisRT72",

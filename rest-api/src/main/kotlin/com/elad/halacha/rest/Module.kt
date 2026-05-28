@@ -23,6 +23,7 @@ import com.elad.halacha.engine.internal.InternalMethodRegistry
 import com.kosherjava.zmanim.util.GeoLocation
 import java.util.Date
 import java.util.TimeZone
+import com.elad.halacha.engine.calendar.ShabbatTimesComputer
 
 fun Application.module() {
     // ---- JSON config (support java.time.* and ISO-8601 output) ----
@@ -321,13 +322,23 @@ fun Application.module() {
                 }
             }
 
+            val shabbatItems = ShabbatTimesComputer.compute(inputs.date, geoloc, inputs.candleOffsetMinutes).map { s ->
+                ProfileComputeItem(
+                    id = s.id,
+                    label = Labels(he = s.labelHe, en = s.labelEn),
+                    resolution = Resolution(kind = "SHABBAT", owner = "ShabbatTimesComputer", status = "ok"),
+                    utc = s.utc, local = s.local, instant = s.instant
+                )
+            }
+
             val resp = ProfileComputeResponse(
                 profile = MinimalProfileInfo(profile.key, profile.displayName, profile.labels),
                 input = ProfileComputeInput(
                     dateIso = inputs.date,
-                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
+                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz),
+                    candleOffsetMinutes = inputs.candleOffsetMinutes
                 ),
-                results = results,
+                results = results + shabbatItems,
                 warnings = validation.warnings
             )
 
@@ -518,13 +529,23 @@ fun Application.module() {
                 }
             }
 
+            val shabbatItems = ShabbatTimesComputer.compute(inputs.date, geoloc, inputs.candleOffsetMinutes).map { s ->
+                ProfileComputeItem(
+                    id = s.id,
+                    label = Labels(he = s.labelHe, en = s.labelEn),
+                    resolution = Resolution(kind = "SHABBAT", owner = "ShabbatTimesComputer", status = "ok"),
+                    utc = s.utc, local = s.local, instant = s.instant
+                )
+            }
+
             val resp = ProfileComputeResponse(
                 profile = MinimalProfileInfo(profile.key, profile.displayName, profile.labels),
                 input = ProfileComputeInput(
                     dateIso = inputs.date,
-                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz)
+                    geo = GeoInput(inputs.lat, inputs.lon, inputs.elev, inputs.tz),
+                    candleOffsetMinutes = inputs.candleOffsetMinutes
                 ),
-                results = results,
+                results = results + shabbatItems,
                 warnings = validation.warnings
             )
             call.respond(HttpStatusCode.OK, resp)
@@ -595,7 +616,8 @@ private data class Inputs(
     val lat: Double,
     val lon: Double,
     val elev: Double,
-    val tz: String
+    val tz: String,
+    val candleOffsetMinutes: Double = 30.0
 )
 
 /** Parse shared inputs, log problems, and respond 400 when invalid. */
@@ -621,9 +643,10 @@ private suspend fun ApplicationCall.parseInputsOr400(log: org.slf4j.Logger): Inp
     }
 
     val elev = request.queryParameters["elev"]?.toDoubleOrNull() ?: 0.0
+    val candleOffset = request.queryParameters["candleMinutes"]?.toDoubleOrNull() ?: 30.0
 
-    log.debug("Parsed inputs: date={} lat={} lon={} elev={} tz={}", date, lat, lon, elev, tz)
-    return Inputs(date, lat, lon, elev, tz)
+    log.debug("Parsed inputs: date={} lat={} lon={} elev={} tz={} candleMinutes={}", date, lat, lon, elev, tz, candleOffset)
+    return Inputs(date, lat, lon, elev, tz, candleOffset)
 }
 
 /** Respond 400 and log a clear message. */

@@ -56,6 +56,12 @@ object InternalMethodRegistry {
                     )
                 )
             }
+
+            InternalMethodId.GENERIC_TZAIS_BY_DEGREES -> {
+                val degrees = astroDegrees ?: 4.9
+                val inputs = InternalMethodComputer.Inputs(date = date, location = loc, astroDegrees = degrees)
+                InternalMethodComputer.Output(id, InternalMethodComputer.tzaisByDegrees(inputs, degrees))
+            }
         }
     }
 }

@@ -56,6 +56,10 @@ object SfaradiOrHachaim {
                     inputs,
                     minutes = params.minutesAfterSunset ?: 18.0
                 )
+
+            // Routed directly in InternalMethodRegistry; should not reach here
+            InternalMethodId.GENERIC_TZAIS_BY_DEGREES ->
+                error("GENERIC_TZAIS_BY_DEGREES must be dispatched by InternalMethodRegistry, not SfaradiOrHachaim")
         }
 
         return InternalMethodComputer.Output(id, time)

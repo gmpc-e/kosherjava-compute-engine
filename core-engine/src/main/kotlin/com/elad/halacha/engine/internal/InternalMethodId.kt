@@ -35,6 +35,12 @@ enum class InternalMethodId(val id: String, val display: String) {
     SFORH_TZAIS_FIXED_MINUTES_AFTER_SUNSET(
         "SFARADI_OR_HACHAIM.TZAIS_FIXED_MINUTES_AFTER_SUNSET",
         "Tzais: fixed minutes after sea-level sunset (default 18, configurable via minutesAfterSunset param)"
+    ),
+
+    // Generic (shita-neutral) methods
+    GENERIC_TZAIS_BY_DEGREES(
+        "GENERIC.TZAIS_BY_DEGREES",
+        "Tzais by configurable degrees below horizon (set via astroDegrees param)"
     )
     ;
 

@@ -86,9 +86,13 @@
     },
 
     {
-      "id": "tzais18min",
-      "label": { "he": "צאת הכוכבים (4.61°)", "en": "Tzais (Geonim 4.61°)" },
-      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzaisGeonim4Point61Degrees" }
+      "id": "tzais4_9deg",
+      "label": { "he": "צאת הכוכבים (4.9°)", "en": "Tzais (4.9°)" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "GENERIC.TZAIS_BY_DEGREES",
+        "params": { "astroDegrees": 4.9 }
+      }
     },
     {
       "id": "tzaisRT72",

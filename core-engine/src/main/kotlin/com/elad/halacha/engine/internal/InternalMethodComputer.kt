@@ -296,7 +296,6 @@ object InternalMethodComputer {
         return result
     }
 
-    /** Tzais = astronomical sunset + 13.5 zmanit minutes (day = astro sunrise→astro sunset). */
     /** Tzais = sea-level sunset + 13.5 zmanit minutes (shaah from sea-level day). */
     fun tzais13p5ZmaniyotAstro(inputs: Inputs): Date? {
                 val tz = inputs.location.timeZone

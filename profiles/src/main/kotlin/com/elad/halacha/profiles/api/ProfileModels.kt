@@ -68,7 +68,8 @@ data class GeoInput(
 
 data class ProfileComputeInput(
     val dateIso: String,   // yyyy-MM-dd
-    val geo: GeoInput
+    val geo: GeoInput,
+    val candleOffsetMinutes: Double = 30.0
 )
 
 data class Resolution(

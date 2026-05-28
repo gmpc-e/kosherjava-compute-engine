@@ -35,7 +35,8 @@ data class GeoInput(
 /** Overall request input echoed in compute responses. */
 data class ProfileComputeInput(
     val dateIso: String,
-    val geo: GeoInput
+    val geo: GeoInput,
+    val candleOffsetMinutes: Double = 30.0
 )
 
 /** One computed row in the profile compute response. */

@@ -1,5 +1,6 @@
 package com.elad.halacha.rest.profiles
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
@@ -19,23 +20,35 @@ object ProfileStore {
         loadIndex()
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private data class IndexEntry(val key: String, val displayName: String? = null)
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private data class IndexWrapper(val profiles: List<IndexEntry> = emptyList())
+
+    private fun loadResource(name: String) =
+        Thread.currentThread().contextClassLoader?.getResourceAsStream(name)
+            ?: javaClass.classLoader?.getResourceAsStream(name)
+
     private fun loadIndex() {
-        val idxStream = javaClass.classLoader.getResourceAsStream("profiles/index.json")
+        val idxStream = loadResource("profiles/index.json")
         if (idxStream == null) {
             log.warn("profiles/index.json not found on classpath; no profiles will be exposed")
             return
         }
         val indexJson = idxStream.readAllBytes().toString(StandardCharsets.UTF_8)
-        val files: List<String> = try {
-            mapper.readValue(indexJson)
+        log.info("Raw index.json content length={}", indexJson.length)
+        val entries: List<IndexEntry> = try {
+            mapper.readValue<IndexWrapper>(indexJson).profiles
         } catch (e: Exception) {
             log.error("Failed parsing profiles/index.json: ${e.message}", e)
             emptyList()
         }
+        log.info("Parsed {} profile entries from index.json", entries.size)
 
-        files.forEach { filename ->
+        entries.forEach { entry ->
+            val filename = "${entry.key}.json"
             val path = "profiles/$filename"
-            val stream = javaClass.classLoader.getResourceAsStream(path)
+            val stream = loadResource(path)
             if (stream == null) {
                 log.warn("Profile file listed in index not found: {}", path)
                 return@forEach

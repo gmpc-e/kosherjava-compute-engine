@@ -1,10 +1,15 @@
 package com.elad.halacha.profiles.api
 
+/**
+ * Engine-facing, in-process API for listing and computing profiles.
+ * All DTOs used here (Profile, Labels, GeoInput, ProfileComputeInput, etc.)
+ * are defined in ProfileModels.kt within the same package.
+ */
 interface ProfilesService {
     /** List available profiles on the engine’s classpath. */
     fun listProfiles(): List<ProfileSummary>
 
-    /** Fetch the full profile JSON by key. */
+    /** Fetch the full profile JSON by key (for preview/edit flows). */
     fun getProfile(key: String): Profile?
 
     /**

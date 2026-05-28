@@ -7,8 +7,8 @@ object SfaradiOrHachaim {
 
     data class Params(
         val astroDegrees: Double? = null,
-        // preferred knob for misheyakir:
-        val misheyakirOffsetHoursFromSeaLevelSunrise: Double? = null
+        val misheyakirOffsetHoursFromSeaLevelSunrise: Double? = null,
+        val minutesAfterSunset: Double? = null
     )
 
     fun compute(
@@ -50,6 +50,12 @@ object SfaradiOrHachaim {
 
             InternalMethodId.SFORH_TZAIS_13P5_ZMANIYOT_ASTRO ->
                 InternalMethodComputer.tzais13p5ZmaniyotAstro(inputs)
+
+            InternalMethodId.SFORH_TZAIS_FIXED_MINUTES_AFTER_SUNSET ->
+                InternalMethodComputer.tzaisFixedMinutesAfterSunset(
+                    inputs,
+                    minutes = params.minutesAfterSunset ?: 18.0
+                )
         }
 
         return InternalMethodComputer.Output(id, time)

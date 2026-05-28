@@ -34,11 +34,14 @@ object InternalMethodRegistry {
                 legacyMinutes?.div(60.0)
             }
 
+        val minutesAfterSunset = (params["minutesAfterSunset"] as? Number)?.toDouble()
+
         return when (id) {
             InternalMethodId.SFORH_ALOS_72_ZMANIYOT_ASTRO,
             InternalMethodId.SFORH_MISHEYAKIR_SHAOT_ZMANIYOT_ASTRO,
             InternalMethodId.SFORH_TZAIS_VARIANTS_DEGREES_4_9,
             InternalMethodId.SFORH_TZAIS_13P5_ZMANIYOT_ASTRO,
+            InternalMethodId.SFORH_TZAIS_FIXED_MINUTES_AFTER_SUNSET,
             InternalMethodId.SFORH_SOF_ZMAN_SHMA_GRA_ASTRO,
             InternalMethodId.SFORH_SOF_ZMAN_TEFILLA_MGA_72_ZMANIYOT_ASTRO,
             InternalMethodId.SFORH_SOF_ZMAN_TEFILLA_GRA_ASTRO -> {
@@ -48,7 +51,8 @@ object InternalMethodRegistry {
                     loc = loc,
                     params = SfaradiOrHachaim.Params(
                         astroDegrees = astroDegrees,
-                        misheyakirOffsetHoursFromSeaLevelSunrise = misheyakirHours
+                        misheyakirOffsetHoursFromSeaLevelSunrise = misheyakirHours,
+                        minutesAfterSunset = minutesAfterSunset
                     )
                 )
             }

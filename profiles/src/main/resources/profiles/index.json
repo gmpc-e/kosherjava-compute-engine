@@ -1,3 +1,6 @@
-[
-  "shimon.json"
-]
+{
+  "profiles": [
+    { "key": "chazon-shamaim",        "displayName": "חזון שמיים", "labels": { "he": "חזון שמיים", "en": "Hazon Shamaim" } },
+    { "key": "or-hachaim-sefardi",        "displayName": "אור החיים – ספרדי", "labels": { "he": "ספרדי אור החיים – משולב", "en": "SFORH Mixed" } }
+  ]
+}

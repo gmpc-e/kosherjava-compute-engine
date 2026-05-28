@@ -6,17 +6,18 @@ plugins {
     `maven-publish`
 }
 
-kotlin {
-    jvmToolchain(17)
-}
+kotlin { jvmToolchain(17) }
 
-// IMPORTANT: no repositories{} here – use settings.gradle.kts
+// ✅ Put the coordinates on the project itself (clear + cache-friendly)
+group = "com.elad.halacha"
+version = "0.1.2-SNAPSHOT"
 
 dependencies {
     implementation(project(":profiles"))
     implementation("com.kosherjava:zmanim:2.5.0")
+    // junit should be test-only (you had it as implementation)
+    testImplementation("junit:junit:4.13.2")
     testImplementation(kotlin("test"))
-    // ✅ add SLF4J API so LoggerFactory compiles
     implementation("org.slf4j:slf4j-api:2.0.13")
 }
 
@@ -27,15 +28,18 @@ java {
 
 publishing {
     publications {
+        // Keep the default name; only set artifactId.
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = (findProperty("GROUP") as String?) ?: "com.elad.halacha"
             artifactId = "core-engine"
-            version = (findProperty("VERSION_NAME") as String?) ?: "0.1.0"
+            // ❌ DO NOT override groupId/version here (inherit from project)
         }
+    }
+    repositories {
+        // Not strictly required for mavenLocal, but harmless:
+        mavenLocal()
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
+// If you’re using JUnit 4, remove this or add vintage engine.
+// tasks.test { useJUnitPlatform() }

@@ -6,30 +6,34 @@ plugins {
     `maven-publish`
 }
 
+group = "com.elad.halacha"
+version = "0.1.2-SNAPSHOT"
+
 kotlin { jvmToolchain(17) }
-
-// No repositories{} here
-
-dependencies {
-    testImplementation(kotlin("test"))
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
-    implementation(kotlin("stdlib"))
-}
 
 java {
     withSourcesJar()
     withJavadocJar()
 }
 
+// IMPORTANT: use the default resources root so files are packaged under "profiles/..."
+// Place your JSON under: src/main/resources/profiles/*.json
+// (Delete your previous sourceSets override)
+dependencies {
+    implementation(kotlin("stdlib"))
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
+
+    testImplementation(kotlin("test"))
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = (findProperty("GROUP") as String?) ?: "com.elad.halacha"
-            artifactId = "profiles"                    // <-- ensure this says "profiles"
-            version = (findProperty("VERSION_NAME") as String?) ?: "0.1.0"
+            artifactId = "profiles" // will publish as com.elad.halacha:profiles:0.1.2-SNAPSHOT
+            // groupId & version inherited from project group/version above
         }
     }
 }

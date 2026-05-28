@@ -1,0 +1,18 @@
+{
+  "resolution": {
+    "kind": "ENUM",
+    "alias": "SUNSET",
+    "externalMethod": "getSunset",
+    "owner": "ZmanimCalendar"
+  },
+  "input": {
+    "dateIso": "2025-09-09",
+    "lat": 32.0853,
+    "lon": 34.7818,
+    "elevationMeters": 34.0,
+    "tz": "Asia/Jerusalem"
+  },
+  "utc": "2025-09-09T15:55:37.262Z",
+  "local": "2025-09-09T18:55:37.262+03:00",
+  "instant": "2025-09-09T15:55:37.262Z"
+}

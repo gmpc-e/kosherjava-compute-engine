@@ -1,9 +1,15 @@
 <configuration>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %-5level [%thread] %logger - %msg%n</pattern>
+      <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
+
+  <!-- Enable DEBUG for internal compute & validator -->
+  <logger name="com.elad.halacha.engine.internal.InternalMethodComputer" level="DEBUG"/>
+  <logger name="com.elad.halacha.rest.profiles.ProfileValidator" level="DEBUG"/>
+  <logger name="InternalMethodsRoutes" level="DEBUG"/>
+
   <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>

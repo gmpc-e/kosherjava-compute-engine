@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "key": "chazon-shamaim",
+  "displayName": "חזון שמיים",
+  "labels": { "he": "חֲזוֹן שָׁמַיִם", "en": "Hazon Shamaim" },
+  "times": [
+    {
+      "id": "alos90",
+      "label": { "he": "עלות השחר (90 דקות לפני הנץ)", "en": "Alos (90 minutes before sunrise)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos90" }
+    },
+    {
+      "id": "alos72",
+      "label": { "he": "עלות השחר (72 דקות לפני הנץ)", "en": "Alos (72 minutes before sunrise)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72" }
+    },
+
+    {
+      "id": "misheyakir11_5deg",
+      "label": { "he": "זמן טלית ותפילין (11.5°)", "en": "Misheyakir (11.5°)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMisheyakir11Point5Degrees" }
+    },
+
+    {
+      "id": "sunriseSea",
+      "label": { "he": "זריחה מישורית", "en": "Sea-level Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunrise" }
+    },
+    {
+      "id": "sunriseVisible",
+      "label": { "he": "זריחה הנראית", "en": "Visible Sunrise" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunrise" }
+    },
+
+    {
+      "id": "szsMga",
+      "label": { "he": "סוף זמן קריאת שמע (מג״א)", "en": "Sof Zman Shema (MGA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA" }
+    },
+    {
+      "id": "szsGra",
+      "label": { "he": "סוף זמן קריאת שמע (גר״א)", "en": "Sof Zman Shema (GRA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaGRA" }
+    },
+    {
+      "id": "sztMga",
+      "label": { "he": "סוף זמן תפילה (מג״א)", "en": "Sof Zman Tefillah (MGA 90min)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA90Minutes" }
+    },
+    {
+      "id": "sztGra",
+      "label": { "he": "סוף זמן תפילה (גר״א)", "en": "Sof Zman Tefillah (GRA)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaGRA" }
+    },
+    {
+      "id": "chatzosDay",
+      "label": { "he": "חצות היום", "en": "Chatzos (midday)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getChatzos" }
+    },
+
+    {
+      "id": "minchaGedola",
+      "label": { "he": "תחילת זמן מנחה גדולה", "en": "Mincha Gedola" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaGedola" }
+    },
+    {
+      "id": "minchaKetana",
+      "label": { "he": "מנחה קטנה", "en": "Mincha Ketana" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaKetana" }
+    },
+    {
+      "id": "plag",
+      "label": { "he": "פלג המנחה", "en": "Plag Hamincha" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getPlagHamincha" }
+    },
+
+    {
+      "id": "sunsetSea",
+      "label": { "he": "שקיעה מישורית", "en": "Sea-level Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunset" }
+    },
+    {
+      "id": "sunsetVisible",
+      "label": { "he": "שקיעה הנראית", "en": "Visible Sunset" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSunset" }
+    },
+
+    {
+      "id": "tzaisDeg4_8",
+      "label": { "he": "צאת הכוכבים 4.8°", "en": "Tzais (4.8°)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzaisGeonim4Point8Degrees" }
+    },
+    {
+      "id": "tzaisRT72",
+      "label": { "he": "צאת הכוכבים – רבנו תם (72)", "en": "Tzais Rabbenu Tam (72)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getTzais72" }
+    },
+        {
+      "id": "chatzosNight",
+      "label": { "he": "חצות הלילה (Solar Midnight)", "en": "Solar Midnight" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSolarMidnight" }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "key": "or-hachaim",
+  "displayName": "Sfaradi – Or HaChaim",
+  "labels": { "en": "Or HaChaim (Sefardi)", "he": "אור החיים – ספרדי" },
+  "times": [
+    {
+      "id": "alos72Zmaniyot",
+      "label": { "en": "Alos (72 zmaniyot)", "he": "עלות השחר 72 זמניות" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getAlos72Zmanis" }
+    },
+    {
+      "id": "misheyakirZmanitHours",
+      "label": { "en": "Misheyakir (−1.1 zmanit hours)", "he": "משיכיר −1.1 שעות זמניות" },
+      "target": {
+        "kind": "INTERNAL",
+        "internalMethodId": "SFARADI_OR_HACHAIM.MISHEYAKIR_SHAOT_ZMANIYOT_ASTRO"
+      }
+    },
+
+    {
+      "id": "szsMga72Zmaniyot",
+      "label": { "en": "Sof Zman Shema (MGA, 72 zmaniyot)", "he": "סו\"ז ק\"ש מגן אברהם (72 זמניות)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaMGA72MinutesZmanis" }
+    },
+    {
+      "id": "szsGra",
+      "label": { "en": "Sof Zman Shema (GRA/Tanya)", "he": "סו\"ז ק\"ש גר\"א/בעל התניא" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanShmaGRA" }
+    },
+
+    {
+      "id": "sztMga72Zmaniyot",
+      "label": { "en": "Sof Zman Tefillah (MGA, 72 zmaniyot)", "he": "סו\"ז תפילה מ\"א (72 זמניות)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaMGA72MinutesZmanis" }
+    },
+    {
+      "id": "sztGra",
+      "label": { "en": "Sof Zman Tefillah (GRA/Tanya)", "he": "סו\"ז תפילה גר\"א/בעל התניא" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSofZmanTfilaGRA" }
+    },
+
+    {
+      "id": "minchaKetanaSea",
+      "label": { "en": "Mincha Ketana (sea-level)", "he": "מנחה קטנה (מישורי)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getMinchaKetana" }
+    },
+
+    {
+      "id": "sanitySeaSunrise",
+      "label": { "en": "Sea-level Sunrise (sanity)", "he": "זריחה מישורית (בדיקה)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunrise" }
+    },
+    {
+      "id": "sanitySeaSunset",
+      "label": { "en": "Sea-level Sunset (sanity)", "he": "שקיעה מישורית (בדיקה)" },
+      "target": { "kind": "EXTERNAL_NAME", "externalMethod": "getSeaLevelSunset" }
+    },
+
+{
+  "id": "tzais13p5ZmaniyotAstro",
+  "label": { "en": "Tzais (13.5 zmanit minutes)", "he": "צאת הכוכבים 13.5 דקות זמניות" },
+  "target": {
+    "kind": "INTERNAL",
+    "internalMethodId": "SFARADI_OR_HACHAIM.TZAIS_13P5_ZMANIYOT_ASTRO"
+  }
+}
+  ]
+}

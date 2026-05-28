@@ -1,0 +1,52 @@
+[
+  {
+    "name": "getAlos120",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos120Zmanis",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos16Point1Degrees",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos18Degrees",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos19Degrees",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos19Point8Degrees",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos26Degrees",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  },
+  {
+    "name": "getAlos60",
+    "owner": "ComplexZmanimCalendar",
+    "description": "Alot Hashachar fixed 60 minutes before sunrise."
+  },
+  {
+    "name": "getAlos72",
+    "owner": "ComplexZmanimCalendar",
+    "description": "Alot Hashachar fixed 72 minutes before sunrise."
+  },
+  {
+    "name": "getAlos72Zmanis",
+    "owner": "ComplexZmanimCalendar",
+    "description": null
+  }
+]
